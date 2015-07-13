@@ -1,8 +1,8 @@
 class NameCollisionError < RuntimeError; end
+class InvalidNameError < RuntimeError; end
 
 class Robot
-  attr_accessor :name
-  attr_accessor :name_generator
+  attr_accessor :name, :name_generator
 
   @@registry = []
 
@@ -15,11 +15,8 @@ class Robot
   end
 
   def generate_name
-    if name_generator
-      name_generator.call
-    else
-      generate_character_sequence(2) + generate_number_sequence(3)
-    end
+    return name_generator.call if name_generator
+    generate_character_sequence(2) + generate_number_sequence(3)
   end
 
   def generate_character_sequence(count)
@@ -43,7 +40,7 @@ class Robot
   end
 
   def check_name_collision
-    return if name =~ /[[:alpha]]{2}[[:digit:]]{3}/
+    raise InvalidNameError, 'Error' unless name =~ /[[:alpha]]{2}[[:digit:]]{3}/
     return unless @@registry.include?(name)
 
     raise NameCollisionError, 'There was a problem generating the robot name!'
